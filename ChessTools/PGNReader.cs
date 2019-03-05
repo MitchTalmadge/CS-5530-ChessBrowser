@@ -76,7 +76,7 @@ namespace ChessTools
                     if (chessEvent == null)
                     {
                         chessEvent = new ChessEvent
-                            {Name = eventName, Site = siteName, Date = DateTime.Parse(eventDate)};
+                            {Name = eventName, Site = siteName, Date = eventDate};
                         eventsMap[eventName] = chessEvent;
                     }
 
@@ -84,6 +84,14 @@ namespace ChessTools
                     var game = new ChessGame {Event = chessEvent};
                     game.setResult(result);
                     chessEvent.Games.Add(game);
+
+                    // Read and set game moves.
+                    var gameMovesBuilder = new StringBuilder();
+                    while (!string.IsNullOrWhiteSpace(line = file.ReadLine()))
+                    {
+                        gameMovesBuilder.Append(line);
+                    }
+                    game.Moves = gameMovesBuilder.ToString();
 
                     // Update and assign players.
                     var blackPlayer = chessEvent.getOrCreatePlayer(blackPlayerName);

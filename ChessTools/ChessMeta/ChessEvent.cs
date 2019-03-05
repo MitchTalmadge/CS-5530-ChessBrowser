@@ -12,7 +12,7 @@ namespace ChessTools.ChessMeta
 
         public string Site { get; set; }
 
-        public DateTime Date { get; set; }
+        public string Date { get; set; }
 
         public ICollection<ChessGame> Games { get; } = new List<ChessGame>();
 
@@ -28,5 +28,11 @@ namespace ChessTools.ChessMeta
 
             return player;
         }
+
+        public IEnumerable<ChessPlayer> getPlayers()
+        {
+            return Players.Values;
+        }
+        
     }
 }
