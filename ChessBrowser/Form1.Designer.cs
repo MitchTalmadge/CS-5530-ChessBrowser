@@ -1,6 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Windows.Forms;
 using ChessTools;
 using ChessTools.ChessMeta;
@@ -72,7 +73,7 @@ namespace ChessBrowser
                         cmd = conn.CreateCommand();
                         cmd.Transaction = transaction;
 
-                        cmd.CommandText = "INSERT INTO Events(Name, Site, Date) VALUES (@Name, @Site, @Date)";
+                        cmd.CommandText = "INSERT IGNORE INTO Events(Name, Site, Date) VALUES (@Name, @Site, @Date)";
 
                         cmd.Prepare();
                         cmd.Parameters.AddWithValue("@Name", chessEvent.Name);
@@ -108,7 +109,7 @@ namespace ChessBrowser
                                               "@Moves, " +
                                               "(SELECT pID FROM Players WHERE Name = @BlackName), " +
                                               "(SELECT pID FROM Players WHERE Name = @WhiteName), " +
-                                              "(SELECT eID FROM Events WHERE Name = @EventName)" +
+                                              "(SELECT eID FROM Events WHERE Name = @EventName AND Date = @EventDate)" +
                                               ")";
 
                             cmd.Prepare();
@@ -117,6 +118,7 @@ namespace ChessBrowser
                             cmd.Parameters.AddWithValue("@BlackName", game.BlackPlayer.Name);
                             cmd.Parameters.AddWithValue("@WhiteName", game.WhitePlayer.Name);
                             cmd.Parameters.AddWithValue("@EventName", game.Event.Name);
+                            cmd.Parameters.AddWithValue("@EventDate", game.Event.Date);
 
                             cmd.ExecuteNonQuery();
                         }
@@ -157,7 +159,7 @@ namespace ChessBrowser
             string connection = GetConnectionString();
 
             // Build up this string containing the results from your query
-            string parsedResult = "";
+            var parsedResult = new StringBuilder();
 
             // Use this to count the number of rows returned by your query
             // (see below return statement)
@@ -170,10 +172,97 @@ namespace ChessBrowser
                     // Open a connection
                     conn.Open();
 
-                    // TODO: Generate and execute an SQL command,
-                    //       then parse the results into an appropriate string
-                    //       and return it.
-                    //       Remember that the returned string must use \r\n newlines
+                    var cmd = conn.CreateCommand();
+                    cmd.CommandText = @"SELECT 
+                                            e.Name AS eventName, 
+                                            e.Site, 
+                                            e.Date, 
+                                            bp.Name AS blackPlayerName, 
+                                            wp.Name AS whitePlayerName, 
+                                            bp.Elo AS blackPlayerElo, 
+                                            wp.Elo AS whitePlayerElo, 
+                                            g.Result,
+                                            g.Moves
+
+                                            FROM Events e
+                                            JOIN Games g ON g.eID = e.eID
+                                            JOIN Players bp ON (g.BlackPlayer = bp.pID)
+                                            JOIN Players wp ON (g.WhitePlayer = wp.pID)";
+
+                    var where = false;
+
+                    // Add conditions
+                    if (!string.IsNullOrWhiteSpace(white))
+                    {
+                        cmd.CommandText += (!where ? " WHERE" : " AND") + " wp.Name = @WhitePlayerName";
+                        where = true;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(black))
+                    {
+                        cmd.CommandText += (!where ? " WHERE" : " AND") + " bp.Name = @BlackPlayerName";
+                        where = true;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(winner))
+                    {
+                        cmd.CommandText += (!where ? " WHERE" : " AND");
+
+                        if (winner == "White")
+                            cmd.CommandText += " g.Result = 'W'";
+                        else if(winner == "Black")
+                            cmd.CommandText += " g.Result = 'B'";
+                        else
+                            cmd.CommandText += " g.Result = 'D'";
+
+                        where = true;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(opening))
+                    {
+                        cmd.CommandText += (!where ? " WHERE" : " AND") + " g.Moves LIKE @OpeningMove";
+                        where = true;
+                    }
+
+                    if (useDate)
+                    {
+                        cmd.CommandText += (!where ? " WHERE" : " AND") + " e.Date >= @StartDate AND e.Date <= @EndDate";
+                        where = true;
+                    }
+
+                    cmd.Prepare();
+                    cmd.Parameters.AddWithValue("@WhitePlayerName", white);
+                    cmd.Parameters.AddWithValue("@BlackPlayerName", black);
+                    cmd.Parameters.AddWithValue("@OpeningMove", opening + "%");
+                    cmd.Parameters.AddWithValue("@StartDate", start);
+                    cmd.Parameters.AddWithValue("@EndDate", end);
+
+                    var reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        numRows++;
+
+                        parsedResult.Append("Event: ").Append(reader.GetString("eventName")).AppendLine();
+                        parsedResult.Append("Site: ").Append(reader.GetString("Site")).AppendLine();
+                        parsedResult.Append("Date: ").Append(reader.GetDateTime("Date")).AppendLine();
+
+                        parsedResult.Append("White: ").Append(reader.GetString("whitePlayerName")).Append(" (")
+                            .Append(reader.GetInt32("whitePlayerElo")).Append(")").AppendLine();
+
+                        parsedResult.Append("Black: ").Append(reader.GetString("blackPlayerName")).Append(" (")
+                            .Append(reader.GetInt32("blackPlayerElo")).Append(")").AppendLine();
+
+                        parsedResult.Append("Result: ").Append(reader.GetString("Result")).AppendLine();
+
+                        if (showMoves)
+                            parsedResult.Append("Moves: ").Append(reader.GetString("Moves")).AppendLine();
+                        
+
+                        parsedResult.AppendLine();
+                    }
+
+                    reader.Close();
                 }
                 catch (Exception e)
                 {
