@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessBrowser", "ChessBrowse
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resources", "Resources\Resources.csproj", "{C5B985E8-16C7-41F5-94DA-90F88598257D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessTools", "ChessTools\ChessTools.csproj", "{DBCCF9A9-0214-457B-8C8D-3887F39BBAB7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,10 @@ Global
 		{C5B985E8-16C7-41F5-94DA-90F88598257D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C5B985E8-16C7-41F5-94DA-90F88598257D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C5B985E8-16C7-41F5-94DA-90F88598257D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBCCF9A9-0214-457B-8C8D-3887F39BBAB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBCCF9A9-0214-457B-8C8D-3887F39BBAB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBCCF9A9-0214-457B-8C8D-3887F39BBAB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBCCF9A9-0214-457B-8C8D-3887F39BBAB7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
