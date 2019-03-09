@@ -73,7 +73,7 @@ namespace ChessBrowser
                         cmd = conn.CreateCommand();
                         cmd.Transaction = transaction;
 
-                        cmd.CommandText = "INSERT IGNORE INTO Events(Name, Site, Date) VALUES (@Name, @Site, @Date)";
+                        cmd.CommandText = "INSERT INTO Events(Name, Site, Date) VALUES (@Name, @Site, @Date)";
 
                         cmd.Prepare();
                         cmd.Parameters.AddWithValue("@Name", chessEvent.Name);

@@ -13,28 +13,28 @@ namespace ChessTools
     public class PGNReader
     {
         private static readonly Regex EventNameRegex =
-            new Regex("\\[Event \"([^\"]+)\"\\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            new Regex("\\[Event \"(.+)\"\\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private static readonly Regex EventSiteNameRegex =
-            new Regex("\\[Site \"([^\"]+)\"\\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            new Regex("\\[Site \"(.+)\"\\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private static readonly Regex EventDateRegex =
-            new Regex("\\[EventDate \"([^\"]+)\"\\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            new Regex("\\[EventDate \"(.+)\"\\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private static readonly Regex BlackPlayerRegex =
-            new Regex("\\[Black \"([^\"]+)\"\\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            new Regex("\\[Black \"(.+)\"\\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private static readonly Regex WhitePlayerRegex =
-            new Regex("\\[White \"([^\"]+)\"\\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            new Regex("\\[White \"(.+)\"\\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private static readonly Regex BlackPlayerEloRegex =
-            new Regex("\\[BlackElo \"([^\"]+)\"\\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            new Regex("\\[BlackElo \"(.+)\"\\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private static readonly Regex WhitePlayerEloRegex =
-            new Regex("\\[WhiteElo \"([^\"]+)\"\\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            new Regex("\\[WhiteElo \"(.+)\"\\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private static readonly Regex ResultRegex =
-            new Regex("\\[Result \"([^\"]+)\"\\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            new Regex("\\[Result \"(.+)\"\\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         // ReSharper disable once InconsistentNaming
         public static Dictionary<string, ChessEvent>.ValueCollection ParseEventsFromPGN(string fileName)
@@ -50,11 +50,11 @@ namespace ChessTools
                 if (line.StartsWith("[Event "))
                 {
                     // Read all tags into metadata string.
-                    var metadataBuilder = new StringBuilder(line);
+                    var metadataBuilder = new StringBuilder(line).AppendLine();
 
                     while (!string.IsNullOrWhiteSpace(line = file.ReadLine()))
                     {
-                        metadataBuilder.Append(line);
+                        metadataBuilder.AppendLine(line);
                     }
 
                     var metadata = metadataBuilder.ToString();
